@@ -1,0 +1,120 @@
+use Libraries.Game.Game
+use Libraries.Game.Graphics.Drawable
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Events.KeyboardEvent
+use Libraries.Game.InputMonitor
+use Libraries.Interface.Events.CollisionEvent2D
+use Libraries.Interface.Events.CollisionListener2D
+use Libraries.Compute.Random
+use Libraries.Sound.Speech
+
+/*
+    This is a default class for creating a game in Quorum. Note that the Main 
+    action begins by calling StartGame(), which loads a window a game can 
+    be displayed in. The action CreateGame is where the game should load any 
+    assets, like images to be displayed, frames of animation, or sounds to be
+    played. 
+*/
+class Main is Game, CollisionListener2D
+    Drawable box
+    Drawable circle
+    Color color
+    KeyboardEvent button
+    InputMonitor im
+    Random tint
+    Speech talk
+
+    number r = 0
+    number g = 0
+    number b = 0
+    number a = 0
+    integer x = 0
+    integer y = 0
+    collision = false
+
+
+    /*
+        This action, Main, starts our computer program. In Quorum, programs always
+        begin from Main.
+    */
+    action Main
+        SetScreenSize(1000, 1000)
+        StartGame()
+    end
+
+    /*
+        This action sets up the default values for a game. For example, we might
+        use the Libraries.Game.Graphics.Drawable class to load up an image or 
+        a shape. Or, we might add a Libraries.Interface.Button for making something clickable
+        or a Libraries.Interface.TextBox for gathering user input in a game.
+    */
+    action CreateGame
+        box:LoadFilledRectangle(100,100)
+        box:SetPosition(200,500)
+        box:SetColor(color:Blue())
+        box:SetCollidable(true)
+        Add (box)
+
+        circle:LoadFilledCircle(40)
+        circle:SetPosition(50,50)
+        circle:SetColor(color:Black())
+        circle:SetCollidable(true)
+        Add (circle)
+
+        AddCollisionListener(me)
+    end
+
+    /*
+        The update action is called on every "frame" of animation in a game. This
+        action should be used to do operations on items. So, for example, we 
+        might use this action to change frames of animation, to rotate items, 
+        or to make creatures jump.
+    */
+    action Update(number seconds)
+        if im:IsKeyPressed(button:X)
+            Exit()
+        end
+
+        if im:IsKeyPressed (button:LEFT)
+            circle:MoveX(-5)
+        end
+        
+        if im:IsKeyPressed(button:RIGHT)
+            circle:MoveX(5)
+        end
+
+        if im:IsKeyPressed(button:UP)
+            circle:MoveY(5)
+        end
+
+        if im:IsKeyPressed(button:DOWN)
+            circle:MoveY(-5)
+        end
+        if collision = true
+            SquareMove()
+        end
+    end
+
+    action SquareMove
+        box:Move(5,5)
+        if box:GetX()> 950 or box:GetY() > 950
+            box:SetPosition(0,0)
+        end
+    end
+
+    action BeginCollision (CollisionEvent2D event)
+        collision = true
+        r = tint:RandomNumber()
+        g = tint:RandomNumber()
+        b = tint:RandomNumber()
+        a = 0.75
+        x = tint:RandomInteger(950)
+        y = tint:RandomInteger(950)
+        
+    end
+
+    action FinishCollision(CollisionEvent2D event)
+        box:SetColor(r,g,b,a)        
+    end
+
+end
